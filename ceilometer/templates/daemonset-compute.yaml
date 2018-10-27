@@ -106,6 +106,10 @@ spec:
             - name: machine-id
               mountPath: /etc/machine-id
               readOnly: true
+            - name: ceilometer-etc
+              mountPath: /etc/ceilometer/polling.yaml
+              subPath: polling.yaml
+              readOnly: true
 {{ if $mounts_ceilometer_compute.volumeMounts }}{{ toYaml $mounts_ceilometer_compute.volumeMounts | indent 12 }}{{ end }}
       volumes:
         - name: pod-etc-ceilometer

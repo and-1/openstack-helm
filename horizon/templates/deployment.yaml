@@ -59,6 +59,13 @@ spec:
 {{ tuple $envAll $envAll.Values.pod.resources.server | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
           securityContext:
             runAsUser: 0
+ {{- if .Values.modules }}
+          env:
+ {{- range $key, $value := $envAll.Values.modules }}
+            - name: {{ $key }}
+              value:  "{{ $value}}"
+ {{- end }}
+ {{- end }}
           command:
             - /tmp/horizon.sh
             - start
@@ -84,6 +91,10 @@ spec:
             - name: horizon-bin
               mountPath: /tmp/horizon.sh
               subPath: horizon.sh
+              readOnly: true
+            - name: horizon-bin
+              mountPath: /tmp/extend_start.sh
+              subPath: extend_start.sh
               readOnly: true
             - name: horizon-bin
               mountPath: /tmp/manage.py
