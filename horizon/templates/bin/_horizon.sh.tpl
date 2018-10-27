@@ -43,8 +43,11 @@ function start () {
   fi
 
   # Compress Horizon's assets.
-  /tmp/manage.py collectstatic --noinput
-  /tmp/manage.py compress --force
+#  /tmp/manage.py collectstatic --noinput
+#  /tmp/manage.py compress --force
+# Use script from kolla
+  /tmp/extend_start.sh
+
   rm -rf /tmp/_tmp_.secret_key_store.lock /tmp/.secret_key_store
 
   # Add TaaS dashboard panel if available

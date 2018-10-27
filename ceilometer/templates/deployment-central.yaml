@@ -93,6 +93,10 @@ spec:
               mountPath: /tmp/ceilometer-central.sh
               subPath: ceilometer-central.sh
               readOnly: true
+            - name: ceilometer-etc
+              mountPath: /etc/ceilometer/polling.yaml
+              subPath: polling.yaml
+              readOnly: true
 {{ if $mounts_ceilometer_central.volumeMounts }}{{ toYaml $mounts_ceilometer_central.volumeMounts | indent 12 }}{{ end }}
       volumes:
         - name: pod-etc-ceilometer

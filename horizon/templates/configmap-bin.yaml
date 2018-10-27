@@ -38,4 +38,6 @@ data:
 {{ tuple "bin/_manage.py.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
   django.wsgi: |
 {{ tuple "bin/_django.wsgi.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+  extend_start.sh: |
+{{ tuple "bin/_extend_start.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
 {{- end }}
