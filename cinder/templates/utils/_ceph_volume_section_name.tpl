@@ -15,11 +15,14 @@ limitations under the License.
 */}}
 
 {{- define "cinder.utils.ceph_volume_section_name" -}}
+{{/* workaround for hanlde one more backends without error */}}
+{{- $last_section := dict "name" "" -}}
 {{- range $section, $values := .Values.conf.backends -}}
 {{- if kindIs "map" $values -}}
 {{- if eq $values.volume_driver "cinder.volume.drivers.rbd.RBDDriver" -}}
-{{ $section }}
+{{- $_ := set $last_section "name" $section -}}
 {{- end -}}
 {{- end -}}
 {{- end -}}
+{{ $last_section.name }}
 {{- end -}}

@@ -41,7 +41,7 @@ if [ "x$STORAGE_BACKEND" == "xcinder.volume.drivers.rbd.RBDDriver" ]; then
     ceph osd pool set $1 nosizechange ${size_protection}
     ceph osd pool set $1 crush_rule "${RBD_POOL_CRUSH_RULE}"
   }
-  ensure_pool ${RBD_POOL_NAME} ${RBD_POOL_CHUNK_SIZE} "cinder-volume"
+#  ensure_pool ${RBD_POOL_NAME} ${RBD_POOL_CHUNK_SIZE} "cinder-volume"
 
   if USERINFO=$(ceph auth get client.${RBD_POOL_USER}); then
     KEYSTR=$(echo $USERINFO | sed 's/.*\( key = .*\) caps mon.*/\1/')
