@@ -45,8 +45,17 @@ limitations under the License.
 {{- end -}}
 
 {{- if empty .Values.conf.ceilometer.notification.messaging_urls -}}
-{{- $_ := tuple "oslo_messaging" "internal" "ceilometer" "amqp" . | include "helm-toolkit.endpoints.authenticated_endpoint_uri_lookup" | set .Values.conf.ceilometer.notification "messaging_urls" -}}
+{{- $messaging_urls_tmp := dict -}}
+{{- $_ := set $messaging_urls_tmp "type" "multistring" -}}
+{{- $_ := set $messaging_urls_tmp "values" list -}}
+{{- range $svc := tuple "nova" "neutron" "glance" "cinder" "heat" "ceilometer" -}}
+{{- $svc_user := index $envAll.Values.endpoints.oslo_messaging.auth $svc -}}
+{{- $rabbit_url := print "rabbit://" $svc_user.username ":" $svc_user.password "@" (tuple "oslo_messaging" "internal" "amqp" $envAll | include "helm-toolkit.endpoints.host_and_port_endpoint_uri_lookup") "/" $svc -}}
+{{- $_ := set $messaging_urls_tmp "values" (push $messaging_urls_tmp.values $rabbit_url) -}}
 {{- end -}}
+{{- $_ := set .Values.conf.ceilometer.notification "messaging_urls" $messaging_urls_tmp -}}
+{{- end -}}
+
 
 {{- if empty .Values.conf.ceilometer.keystone_authtoken.region_name -}}
 {{- $_ := set .Values.conf.ceilometer.keystone_authtoken "region_name" .Values.endpoints.identity.auth.ceilometer.region_name -}}
