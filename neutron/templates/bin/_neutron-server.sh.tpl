@@ -22,6 +22,11 @@ COMMAND="${@:-start}"
 function start () {
   exec neutron-server \
         --config-file /etc/neutron/neutron.conf \
+{{- /*---- Import from contrail version----*/}}
+{{- if ( has "opencontrail" .Values.network.backend ) }}
+        --config-file /etc/neutron/plugins/opencontrail/ContrailPlugin.ini
+{{- else }}
+{{- /*---- End----*/}}
         --config-file /etc/neutron/plugins/ml2/ml2_conf.ini
 {{- if .Values.conf.plugins.taas.taas.enabled }} \
         --config-file /etc/neutron/taas_plugin.ini
@@ -29,6 +34,9 @@ function start () {
 {{- if ( has "sriov" .Values.network.backend ) }} \
         --config-file /etc/neutron/plugins/ml2/sriov_agent.ini
 {{- end }}
+{{- /*---- Import from contrail version----*/}}
+{{- end }}
+{{- /*---- End----*/}}
 }
 
 function stop () {

@@ -91,4 +91,14 @@ data:
 {{ tuple "bin/_nova-service-cleaner.sh.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
   rabbit-init.sh: |
 {{- include "helm-toolkit.scripts.rabbit_init" . | indent 4 }}
+#---- Import from contrail version
+{{- if .Values.compute_patch }}
+  compute-patch-ocata-model.py: |
+{{ tuple "bin/patch-ocata/_model.py.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+  compute-patch-ocata-os_vif_util.py: |
+{{ tuple "bin/patch-ocata/_os_vif_util.py.tpl" . | include "helm-toolkit.utils.template" | indent 4 }}
+  contrail-plugin.pth: |
+    /opt/plugin/site-packages
+{{- end }}
+#---- End
 {{- end }}
