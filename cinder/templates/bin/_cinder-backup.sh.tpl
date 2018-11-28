@@ -23,7 +23,7 @@ cat<<EOF>/tmp/cinder-AZ.conf
 backup_ceph_pool = $pool
 EOF
 backup_az=$(echo $AZ | awk -F\- '{print $2}')
-if [ -n $backup_az ];then
+if [ -n "$backup_az" ];then
   cat<<EOF>>/tmp/cinder-AZ.conf
 storage_availability_zone = ${backup_az}
 host = cinder-volume-worker-${backup_az}
