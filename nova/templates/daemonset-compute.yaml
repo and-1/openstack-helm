@@ -151,6 +151,23 @@ spec:
             - name: pod-shared
               mountPath: /tmp/pod-shared
         {{ end }}
+#---- Import from contrail version
+        {{- if ( has "opencontrail" .Values.network.backend ) }}
+        - name: opencontrail-compute-init
+          image: {{ .Values.images.tags.opencontrail_compute_init }}
+          imagePullPolicy: {{ .Values.images.pull_policy }}
+{{ tuple $envAll $envAll.Values.pod.resources.compute | include "helm-toolkit.snippets.kubernetes_resources" | indent 10 }}
+          securityContext:
+            runAsUser: {{ .Values.pod.user.nova.uid }}
+          volumeMounts:
+            - name: opencontrail-plugin-shared
+              mountPath: /opt/plugin
+            # TO-DO: Fix vif-plug-vrouter driver to detect executable dirs path
+            # from rootwrap conf
+            - name: opencontrail-plugin-bin
+              mountPath: /opt/plugin/bin
+        {{- end }}
+#---- End
       containers:
         - name: nova-compute
 {{ tuple $envAll "nova_compute" | include "helm-toolkit.snippets.image" | indent 10 }}
@@ -253,6 +270,33 @@ spec:
             - name: machine-id
               mountPath: /etc/machine-id
               readOnly: true
+#---- Import from contrail version
+            {{- if ( has "opencontrail" .Values.network.backend ) }}
+            - name: opencontrail-plugin-shared
+              mountPath: /opt/plugin
+              readOnly: true
+            # TO-DO: Fix vif-plug-vrouter driver to detect executable dirs path
+            # from rootwrap conf
+            - name: opencontrail-plugin-bin
+              mountPath: /usr/sbin
+              readOnly: true
+            - name: nova-bin
+              mountPath: /usr/local/lib/python2.7/site-packages/contrail-plugin.pth
+              subPath: contrail-plugin.pth
+              readOnly: true
+            {{- end }}
+            {{- if .Values.compute_patch }}
+            {{/* These two mounts for kolla images  */}}
+            - name: nova-bin
+              mountPath: /var/lib/python2.7/site-packages/nova/network/model.py
+              subPath: compute-patch-ocata-model.py
+              readOnly: true
+            - name: nova-bin
+              mountPath: /var/lib/python2.7/site-packages/nova/network/os_vif_util.py
+              subPath: compute-patch-ocata-os_vif_util.py
+              readOnly: true
+            {{- end }}
+#---- End
 {{ if $mounts_nova_compute.volumeMounts }}{{ toYaml $mounts_nova_compute.volumeMounts | indent 12 }}{{ end }}
         - name: nova-compute-ssh
 {{ tuple $envAll "nova_compute_ssh" | include "helm-toolkit.snippets.image" | indent 10 }}
@@ -328,6 +372,16 @@ spec:
         - name: machine-id
           hostPath:
             path: /etc/machine-id
+#---- Import from contrail version
+        {{- if ( has "opencontrail" .Values.network.backend ) }}
+        - name: opencontrail-plugin-shared
+          emptyDir: {}
+        # TO-DO: Fix vif-plug-vrouter driver to detect executable dirs path
+        # from rootwrap conf
+        - name: opencontrail-plugin-bin
+          emptyDir: {}
+        {{- end }}
+#---- End
 {{ if $mounts_nova_compute.volumes }}{{ toYaml $mounts_nova_compute.volumes | indent 8 }}{{ end }}
 {{- end }}
 {{- end }}

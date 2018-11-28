@@ -59,7 +59,27 @@ spec:
       nodeSelector:
         {{ .Values.labels.engine.node_selector_key }}: {{ .Values.labels.engine.node_selector_value }}
       terminationGracePeriodSeconds: {{ .Values.pod.lifecycle.termination_grace_period.engine.timeout | default "30" }}
+# -----------Contrail addon----------------------
+      {{- if .Values.images.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.images.imagePullSecrets }}
+        - name: {{ . | quote }}
+      {{- end }}
+      {{- end }}
+# ------------end-------------------------------
       initContainers:
+# -----------Contrail addon------------------------
+        {{- if .Values.conf.heat.clients_contrail }}
+        - name: opencontrail-heat-init
+          image: {{ .Values.images.tags.opencontrail_heat_init }}
+          imagePullPolicy: {{ .Values.images.pull_policy }}
+          securityContext:
+            runAsUser: {{ .Values.pod.user.heat.uid }}
+          volumeMounts:
+            - name: heat-plugin-shared
+              mountPath: /opt/plugin
+        {{- end }}
+# ------------end---------------------------------
 {{ tuple $envAll "engine" $mounts_heat_engine_init | include "helm-toolkit.snippets.kubernetes_entrypoint_init_container" | indent 8 }}
       containers:
         - name: heat-engine
@@ -95,6 +115,16 @@ spec:
               mountPath: /etc/heat/policy.json
               subPath: policy.json
               readOnly: true
+# -----------Contrail addon------------------------
+            {{- if .Values.conf.heat.clients_contrail }}
+            - name: heat-plugin-shared
+              mountPath: /opt/plugin
+            - name: heat-bin
+              mountPath: /usr/lib/python2.7/site-packages/contrail-plugin.pth
+              subPath: contrail-plugin.pth
+              readOnly: true
+            {{- end }}
+# ------------end---------------------------------
 {{ if $mounts_heat_engine.volumeMounts }}{{ toYaml $mounts_heat_engine.volumeMounts | indent 12 }}{{ end }}
       volumes:
         - name: pod-etc-heat
@@ -107,5 +137,11 @@ spec:
           secret:
             secretName: heat-etc
             defaultMode: 0444
+# -----------Contrail addon------------------------
+        {{- if .Values.conf.heat.clients_contrail }}
+        - name: heat-plugin-shared
+          emptyDir: {}
+        {{- end }}
+# ------------end---------------------------------
 {{ if $mounts_heat_engine.volumes }}{{ toYaml $mounts_heat_engine.volumes | indent 8 }}{{ end }}
 {{- end }}

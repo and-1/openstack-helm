@@ -20,8 +20,16 @@ set -ex
 
 neutron-db-manage \
   --config-file /etc/neutron/neutron.conf \
+{{- /*---- Import from contrail version----*/}}
+{{- if ( has "opencontrail" .Values.network.backend ) }}
+  --config-file /etc/neutron/plugins/opencontrail/ContrailPlugin.ini \
+{{- else }}
+{{- /*---- End----*/}}
   --config-file /etc/neutron/plugins/ml2/ml2_conf.ini \
 {{- if .Values.conf.plugins.taas.taas.enabled }}
   --subproject tap-as-a-service \
 {{- end }}
+{{- /*---- Import from contrail version----*/}}
+{{- end }}
+{{- /*---- End----*/}}
   upgrade head

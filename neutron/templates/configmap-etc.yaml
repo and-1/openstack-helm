@@ -169,6 +169,20 @@ just set it along with nova_metadata_host.
 {{- $formatter_fluent := dict "class" "oslo_log.formatters.FluentFormatter" -}}
 {{- $_ := set .Values.conf.logging "formatter_fluent" $formatter_fluent -}}
 {{- end -}}
+#---- Import from contrail version
+{{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.auth_url -}}
+{{- tuple "identity" "internal" "api" . | include "helm-toolkit.endpoints.keystone_endpoint_uri_lookup" | set .Values.conf.plugins.opencontrail.KEYSTONE "auth_url" | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.admin_user -}}
+{{- set .Values.conf.plugins.opencontrail.KEYSTONE "admin_user" .Values.endpoints.identity.auth.neutron.username | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.admin_password -}}
+{{- set .Values.conf.plugins.opencontrail.KEYSTONE "admin_password" .Values.endpoints.identity.auth.neutron.password | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.admin_tenant_name -}}
+{{- set .Values.conf.plugins.opencontrail.KEYSTONE "admin_tenant_name" .Values.endpoints.identity.auth.neutron.project_name | quote | trunc 0 -}}
+{{- end -}}
+#---- End
 ---
 apiVersion: v1
 kind: Secret
@@ -193,6 +207,10 @@ data:
   linuxbridge_agent.ini: {{ include "helm-toolkit.utils.to_oslo_conf" $envAll.Values.conf.plugins.linuxbridge_agent | b64enc }}
   openvswitch_agent.ini: {{ include "helm-toolkit.utils.to_oslo_conf" $envAll.Values.conf.plugins.openvswitch_agent | b64enc }}
   sriov_agent.ini: {{ include "helm-toolkit.utils.to_oslo_conf" $envAll.Values.conf.plugins.sriov_agent | b64enc }}
+#---- Import from contrail version
+  ContrailPlugin.ini: {{ include "helm-toolkit.utils.to_oslo_conf" $envAll.Values.conf.plugins.opencontrail | b64enc }}
+#---- End
+
   dnsmasq.conf: ""
   neutron_sudoers: {{ $envAll.Values.conf.neutron_sudoers | b64enc }}
   rootwrap.conf: {{ $envAll.Values.conf.rootwrap | b64enc }}

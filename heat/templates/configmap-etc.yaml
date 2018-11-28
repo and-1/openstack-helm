@@ -119,6 +119,22 @@ limitations under the License.
 {{- if empty .Values.conf.heat.heat_api_cfn.bind_port -}}
 {{- $_ := tuple "cloudformation" "internal" "api" . | include "helm-toolkit.endpoints.endpoint_port_lookup" | set .Values.conf.heat.heat_api_cfn "bind_port" -}}
 {{- end -}}
+# --------Contrail addon---------------------
+{{- if .Values.conf.heat.clients_contrail -}}
+{{- if empty .Values.conf.heat.clients_contrail.user -}}
+{{- set .Values.conf.heat.clients_contrail "user" .Values.endpoints.identity.auth.admin.username | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.heat.clients_contrail.password -}}
+{{- set .Values.conf.heat.clients_contrail "password" .Values.endpoints.identity.auth.admin.password | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.heat.clients_contrail.tenant -}}
+{{- set .Values.conf.heat.clients_contrail "tenant" .Values.endpoints.identity.auth.admin.project_name | quote | trunc 0 -}}
+{{- end -}}
+{{- if empty .Values.conf.heat.clients_contrail.auth_host_ip -}}
+{{- tuple "identity" "internal" $envAll | include "helm-toolkit.endpoints.hostname_namespaced_endpoint_lookup" | set .Values.conf.heat.clients_contrail "auth_host_ip" | quote | trunc 0 -}}
+{{- end -}}
+{{- end -}}
+# ---------end-----------------------------
 
 {{- if and (empty .Values.conf.logging.handler_fluent) (has "fluent" .Values.conf.logging.handlers.keys) -}}
 {{- $fluentd_host := tuple "fluentd" "internal" $envAll | include "helm-toolkit.endpoints.hostname_namespaced_endpoint_lookup" }}

@@ -42,12 +42,12 @@ else
   fi
   echo "${NUM_VFS}" > /sys/class/net/{{ $sriov.device }}/device/sriov_numvfs
 fi
-
 {{- if $sriov.mtu }}
 ip link set dev {{ $sriov.device }} mtu {{ $sriov.mtu }}
 {{- end }}
 ip link set {{ $sriov.device }} up
 ip link show {{ $sriov.device }}
+
 
 {{- if $sriov.promisc }}
 promisc_mode="on"
