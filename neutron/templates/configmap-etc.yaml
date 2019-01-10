@@ -182,9 +182,6 @@ just set it along with nova_metadata_host.
 {{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.admin_tenant_name -}}
 {{- set .Values.conf.plugins.opencontrail.KEYSTONE "admin_tenant_name" .Values.endpoints.identity.auth.neutron.project_name | quote | trunc 0 -}}
 {{- end -}}
-{{- if empty .Values.conf.plugins.opencontrail.KEYSTONE.region_name -}}
-{{- set .Values.conf.plugins.opencontrail.KEYSTONE "region_name" .Values.endpoints.identity.auth.neutron.region_name | quote | trunc 0 -}}
-{{- end -}}
 #---- End
 ---
 apiVersion: v1
