@@ -638,16 +638,6 @@ conf:
           sla:
             failure_rate:
               max: 0
-      NovaImages.list_images:
-        - args:
-            detailed: true
-          runner:
-            concurrency: 1
-            times: 1
-            type: constant
-          sla:
-            failure_rate:
-              max: 0
       NovaKeypair.create_and_delete_keypair:
         - runner:
             concurrency: 1
@@ -658,38 +648,6 @@ conf:
               max: 0
       NovaKeypair.create_and_list_keypairs:
         - runner:
-            concurrency: 1
-            times: 1
-            type: constant
-          sla:
-            failure_rate:
-              max: 0
-      NovaSecGroup.create_and_delete_secgroups:
-        - args:
-            rules_per_security_group: 1
-            security_group_count: 1
-          runner:
-            concurrency: 1
-            times: 1
-            type: constant
-          sla:
-            failure_rate:
-              max: 0
-      NovaSecGroup.create_and_list_secgroups:
-        - args:
-            rules_per_security_group: 1
-            security_group_count: 1
-          runner:
-            concurrency: 1
-            times: 1
-            type: constant
-          sla:
-            failure_rate:
-              max: 0
-      NovaSecGroup.create_and_update_secgroups:
-        - args:
-            security_group_count: 1
-          runner:
             concurrency: 1
             times: 1
             type: constant
