@@ -68,6 +68,7 @@ releasenotes/build
 **/*.tgz
 **/_partials.tpl
 **/_globals.tpl
+*/charts
 
 # Gate and Check Logs
 logs/
@@ -75,3 +76,4 @@ tmp/
 
 # Developer symlinks
 helm-toolkit
+
