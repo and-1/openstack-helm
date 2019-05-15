@@ -34,7 +34,13 @@ while true; do
     kubectl get jobs -o json --namespace=$1 | jq -r \
         '.items[] | .spec.completions == .status.succeeded' | \
         grep false > /dev/null && JOBR="False" || JOBR="True"
-    [ $PENDING == "False" -a $READY == "True" -a $JOBR == "True" ] && \
+    query='.items[].status | select(has("fullyLabeledReplicas")) | if .replicas == .readyReplicas then "true" else "false" end'
+    kubectl get replicaset -o json --namespace=$1 | jq -r "$query" | \
+	grep -q false > /dev/null && RS="False" || RS="True"
+    query='.items[].status | if .desiredNumberScheduled == .numberReady then "true" else "false" end'
+    kubectl get daemonset -o json --namespace=$1 | jq -r "$query" | \
+	grep -q false > /dev/null && DS="False" || DS="True"
+    [ $PENDING == "False" -a $READY == "True" -a $JOBR == "True" -a $RS == "True" -a $DS == "True" ] && \
         break || true
     sleep 5
     now=$(date +%s)
